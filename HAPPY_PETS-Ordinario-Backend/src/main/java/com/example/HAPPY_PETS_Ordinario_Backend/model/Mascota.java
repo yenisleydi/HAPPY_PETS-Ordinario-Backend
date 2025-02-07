@@ -29,7 +29,7 @@ public class Mascota {
     @Column(length = 10)
     private String sexo;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_duenio", referencedColumnName = "id_duenio")
     private Duenio duenio;
 }

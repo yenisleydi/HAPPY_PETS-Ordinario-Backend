@@ -1,7 +1,9 @@
 package com.example.HAPPY_PETS_Ordinario_Backend.controller;
 
+import com.example.HAPPY_PETS_Ordinario_Backend.model.Duenio;
 import com.example.HAPPY_PETS_Ordinario_Backend.model.Mascota;
 import com.example.HAPPY_PETS_Ordinario_Backend.model.Veterinario;
+import com.example.HAPPY_PETS_Ordinario_Backend.service.IDuenioService;
 import com.example.HAPPY_PETS_Ordinario_Backend.service.IMascotaService;
 import com.example.HAPPY_PETS_Ordinario_Backend.service.IVeterinarioService;
 import jakarta.validation.Valid;
@@ -24,6 +26,9 @@ public class MascotaController {
     @Autowired
     private IMascotaService iMascotaService;
 
+    @Autowired
+    IDuenioService iDuenioService;
+
     @GetMapping
     public List<Mascota> list(){
         return iMascotaService.findAll();
@@ -33,10 +38,14 @@ public class MascotaController {
     public ResponseEntity<?> show(@PathVariable Long id){
         Optional<Mascota> mascotaOptional = iMascotaService.findById(id);
         if (mascotaOptional.isPresent()){
-            return ResponseEntity.ok(mascotaOptional.orElseThrow());
+            Mascota mascota = mascotaOptional.orElseThrow();
+            // Asegúrate de que el dueño esté cargado
+            System.out.println(mascota.getDuenio());
+            return ResponseEntity.ok(mascota);
         }
         return ResponseEntity.notFound().build();
     }
+
 
     @GetMapping("/dueno/{idDueno}")
     public ResponseEntity<?> getByDuenoId(@PathVariable Long idDueno) {
@@ -46,15 +55,32 @@ public class MascotaController {
         }
         return ResponseEntity.ok(mascotas);
     }
-    
+
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody Mascota mascota, BindingResult result){
+    public ResponseEntity<?> create(@Valid @RequestBody Mascota mascota, BindingResult result) {
         if (result.hasErrors()){
             return validation(result);
         }
-        Mascota mascota1 = iMascotaService.save(mascota);
-        return ResponseEntity.status(HttpStatus.CREATED).body(mascota1);
+
+        // Verifica que se envíe el objeto duenio con su id
+        if (mascota.getDuenio() == null || mascota.getDuenio().getId() == null) {
+            return ResponseEntity.badRequest().body("El dueño es obligatorio");
+        }
+
+        // Recupera la entidad Duenio completa
+        Optional<Duenio> duenioOpt = iDuenioService.findById(mascota.getDuenio().getId());
+        if (!duenioOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("Dueño no encontrado");
+        }
+
+        // Asigna la entidad completa del dueño a la mascota
+        mascota.setDuenio(duenioOpt.get());
+
+        // Guarda la mascota
+        Mascota mascotaGuardada = iMascotaService.save(mascota);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mascotaGuardada);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody Mascota mascota, BindingResult result, @PathVariable Long id){
