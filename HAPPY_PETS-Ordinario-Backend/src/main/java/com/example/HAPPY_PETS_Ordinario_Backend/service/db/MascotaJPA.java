@@ -23,6 +23,11 @@ public class MascotaJPA implements IMascotaService {
         return (List<Mascota>) mascotaRepository.findAll();
     }
 
+     @Override
+    public List<Mascota> findByDuenoId(Long idDueno) {
+        return mascotaRepository.findByDuenioId(idDueno); 
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<Mascota> findById(Long id) {

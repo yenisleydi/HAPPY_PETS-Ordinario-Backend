@@ -11,4 +11,5 @@ public interface IMascotaService {
     Mascota save (Mascota mascota);
     Optional<Mascota> update (Mascota mascota, Long id);
     void remove(Long id);
+    List<Mascota> findByDuenoId(Long idDueno);
 }

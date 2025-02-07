@@ -42,8 +42,8 @@ public class CitaJPA implements ICitaService {
         Cita cita1 = null;
         if (citaOptional.isPresent()){
             Cita cita2 = citaOptional.orElseThrow();
-            cita2.setFechaHora(cita.getFechaHora());
-            cita2.setMotivo(cita.getMotivo());
+            cita2.setFecha(cita.getFecha());
+            cita2.setHora(cita.getHora());
             cita2.setMascota(cita.getMascota());
             cita2.setVeterinario(cita.getVeterinario());
             cita2.setEstado(cita.getEstado());

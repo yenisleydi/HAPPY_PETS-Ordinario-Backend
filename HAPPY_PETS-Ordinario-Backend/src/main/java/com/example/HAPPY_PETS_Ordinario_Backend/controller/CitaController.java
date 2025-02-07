@@ -9,10 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/citas")
@@ -21,39 +18,41 @@ public class CitaController {
     private ICitaService iCitaService;
 
     @GetMapping
-    public List<Cita> list(){
-        return iCitaService.findAll();
+    public ResponseEntity<List<Cita>> list() {
+        List<Cita> citas = iCitaService.findAll();
+        return ResponseEntity.ok(citas);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> show(@PathVariable Long id){
+    public ResponseEntity<?> show(@PathVariable Long id) {
         Optional<Cita> citaOptional = iCitaService.findById(id);
-        if (citaOptional.isPresent()){
-            return ResponseEntity.ok(citaOptional.orElseThrow());
-        }
-        return ResponseEntity.notFound().build();
+        return citaOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody Cita cita, BindingResult result){
-        if (result.hasErrors()){
+    public ResponseEntity<?> create(@Valid @RequestBody Cita cita, BindingResult result) {
+        if (result.hasErrors()) {
             return validation(result);
         }
-        Cita cita1 = iCitaService.save(cita);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cita1);
+
+        // Aquí podrías manejar la conversión de IDs a entidades antes de guardar
+        Cita citaGuardada = iCitaService.save(cita);
+        return ResponseEntity.status(HttpStatus.CREATED).body(citaGuardada);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@Valid @RequestBody Cita cita, BindingResult result, @PathVariable Long id){
-        Optional<Cita> citaOptional = iCitaService.update(cita, id);
-        if (citaOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(citaOptional);
+    public ResponseEntity<?> update(@Valid @RequestBody Cita cita, BindingResult result, @PathVariable Long id) {
+        if (result.hasErrors()) {
+            return validation(result);
         }
-        return ResponseEntity.notFound().build();
+
+        Optional<Cita> citaActualizada = iCitaService.update(cita, id);
+        return citaActualizada.map(citaObj -> ResponseEntity.ok().body(citaObj))
+                              .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> remove (@PathVariable Long id){
+    public ResponseEntity<?> remove(@PathVariable Long id) {
         Optional<Cita> citaOptional = iCitaService.findById(id);
         if (citaOptional.isPresent()) {
             iCitaService.remove(id);
@@ -62,11 +61,11 @@ public class CitaController {
         return ResponseEntity.notFound().build();
     }
 
-    private ResponseEntity<?> validation (BindingResult result){
-        Map<String,String> errors = new HashMap<>();
-        result.getFieldErrors().forEach(err ->{
+    private ResponseEntity<?> validation(BindingResult result) {
+        Map<String, String> errors = new HashMap<>();
+        result.getFieldErrors().forEach(err -> {
             errors.put(err.getField(), "El campo " + err.getField() + " " + err.getDefaultMessage());
         });
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.badRequest().body(errors);
     }
 }

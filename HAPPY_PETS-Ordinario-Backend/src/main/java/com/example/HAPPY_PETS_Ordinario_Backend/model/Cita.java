@@ -3,7 +3,10 @@ package com.example.HAPPY_PETS_Ordinario_Backend.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Table(name = "cita")
@@ -15,10 +18,12 @@ public class Cita {
     private Long id;
 
     @Column(nullable = false)
-    private LocalDateTime fechaHora;
+    private LocalDate fecha;  
 
-    @Column(length = 100)
-    private String motivo;
+    
+    @Column(nullable = false)
+    private LocalTime hora;   
+
 
     @ManyToOne
     @JoinColumn(name = "id_mascota", referencedColumnName = "id_mascota")
@@ -30,4 +35,13 @@ public class Cita {
 
     @Column(length = 20)
     private String estado; // Pendiente, Completada, Cancelada
+
+
+    @ManyToMany
+    @JoinTable(
+        name = "cita_servicio",
+        joinColumns = @JoinColumn(name = "id_cita"),
+        inverseJoinColumns = @JoinColumn(name = "id_servicio")
+    )
+    private List<ServicioVeterinaria> servicios;
 }
