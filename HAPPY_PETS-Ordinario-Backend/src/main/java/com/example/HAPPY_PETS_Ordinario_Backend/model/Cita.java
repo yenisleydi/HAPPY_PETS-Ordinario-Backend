@@ -37,6 +37,10 @@ public class Cita {
     @JoinColumn(name = "id_servicio", referencedColumnName = "id_servicio")
     private ServicioVeterinaria servicioVeterinaria;
 
+    @ManyToOne
+    @JoinColumn(name = "id_duenio", referencedColumnName = "id_duenio")
+    private Duenio duenio;
+
     @Column(length = 20)
     private String estado; // Pendiente, Completada, Cancelada
 
