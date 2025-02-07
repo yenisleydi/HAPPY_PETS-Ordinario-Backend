@@ -19,6 +19,4 @@ public class ServicioVeterinaria {
     private String descripcion;
 
     private double precio;
-
-    private String imagen;
 }

@@ -2,8 +2,8 @@ package com.example.HAPPY_PETS_Ordinario_Backend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "cita")
@@ -30,4 +30,15 @@ public class Cita {
 
     @Column(length = 20)
     private String estado; // Pendiente, Completada, Cancelada
+
+    @Column(length = 15, nullable = false)
+    private String telefonoDueño;
+
+    @ManyToMany
+    @JoinTable(
+        name = "cita_servicio",
+        joinColumns = @JoinColumn(name = "id_cita"),
+        inverseJoinColumns = @JoinColumn(name = "id_servicio")
+    )
+    private List<ServicioVeterinaria> servicios;
 }
