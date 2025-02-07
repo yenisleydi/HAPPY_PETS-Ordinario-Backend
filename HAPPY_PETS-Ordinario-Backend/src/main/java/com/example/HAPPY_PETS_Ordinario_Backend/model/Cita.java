@@ -22,7 +22,7 @@ public class Cita {
 
     
     @Column(nullable = false)
-    private LocalTime hora;   
+    private String hora;   
 
 
     @ManyToOne
@@ -33,15 +33,12 @@ public class Cita {
     @JoinColumn(name = "id_veterinario", referencedColumnName = "id_veterinario")
     private Veterinario veterinario;
 
+    @ManyToOne
+    @JoinColumn(name = "id_servicio", referencedColumnName = "id_servicio")
+    private ServicioVeterinaria servicioVeterinaria;
+
     @Column(length = 20)
     private String estado; // Pendiente, Completada, Cancelada
 
 
-    @ManyToMany
-    @JoinTable(
-        name = "cita_servicio",
-        joinColumns = @JoinColumn(name = "id_cita"),
-        inverseJoinColumns = @JoinColumn(name = "id_servicio")
-    )
-    private List<ServicioVeterinaria> servicios;
 }

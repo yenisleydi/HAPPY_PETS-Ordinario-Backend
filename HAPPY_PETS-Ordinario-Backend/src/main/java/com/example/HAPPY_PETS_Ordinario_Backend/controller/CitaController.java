@@ -34,12 +34,16 @@ public class CitaController {
         if (result.hasErrors()) {
             return validation(result);
         }
-
-        // Aquí podrías manejar la conversión de IDs a entidades antes de guardar
-        Cita citaGuardada = iCitaService.save(cita);
-        return ResponseEntity.status(HttpStatus.CREATED).body(citaGuardada);
+    
+        try {
+            Cita citaGuardada = iCitaService.save(cita);
+            return ResponseEntity.status(HttpStatus.CREATED).body(citaGuardada);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear cita");
+        }
     }
-
+    
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody Cita cita, BindingResult result, @PathVariable Long id) {
         if (result.hasErrors()) {
