@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000") 
 @RequestMapping("/mascotas")
 public class MascotaController {
 
@@ -37,6 +38,15 @@ public class MascotaController {
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/dueno/{idDueno}")
+    public ResponseEntity<?> getByDuenoId(@PathVariable Long idDueno) {
+        List<Mascota> mascotas = iMascotaService.findByDuenoId(idDueno);
+        if (mascotas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(mascotas);
+    }
+    
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody Mascota mascota, BindingResult result){
         if (result.hasErrors()){
