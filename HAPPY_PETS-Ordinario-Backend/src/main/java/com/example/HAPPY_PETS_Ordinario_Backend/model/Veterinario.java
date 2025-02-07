@@ -19,7 +19,7 @@ public class Veterinario {
     private String apellidos;
 
     @Column(nullable = false, length = 15)
-    private int telefono;
+    private String telefono;
 
     @Column(nullable = false, length = 70, unique = true)
     private String email;
