@@ -1,6 +1,12 @@
 package com.example.HAPPY_PETS_Ordinario_Backend.controller;
 
 import com.example.HAPPY_PETS_Ordinario_Backend.model.Cita;
+import com.example.HAPPY_PETS_Ordinario_Backend.model.Mascota;
+import com.example.HAPPY_PETS_Ordinario_Backend.model.ServicioVeterinaria;
+import com.example.HAPPY_PETS_Ordinario_Backend.model.Veterinario;
+import com.example.HAPPY_PETS_Ordinario_Backend.repository.MascotaRepository;
+import com.example.HAPPY_PETS_Ordinario_Backend.repository.ServicioVeterinariaRepository;
+import com.example.HAPPY_PETS_Ordinario_Backend.repository.VeterinarioRepository;
 import com.example.HAPPY_PETS_Ordinario_Backend.service.ICitaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +20,15 @@ import java.util.*;
 @RestController
 @RequestMapping("/citas")
 public class CitaController {
+        @Autowired
+    private MascotaRepository mascotaRepository;
+
+    @Autowired
+    private VeterinarioRepository veterinarioRepository;
+
+    @Autowired
+    private ServicioVeterinariaRepository servicioVeterinariaRepository;
+
     @Autowired
     private ICitaService iCitaService;
 
@@ -30,19 +45,31 @@ public class CitaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody Cita cita, BindingResult result) {
-        if (result.hasErrors()) {
-            return validation(result);
-        }
-    
-        try {
-            Cita citaGuardada = iCitaService.save(cita);
-            return ResponseEntity.status(HttpStatus.CREATED).body(citaGuardada);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear cita");
-        }
+public ResponseEntity<?> create(@Valid @RequestBody Cita cita, BindingResult result) {
+    if (result.hasErrors()) {
+        return validation(result);
     }
+
+    try {
+        // Asignar los objetos correspondientes a partir de los IDs recibidos
+        Mascota mascota = mascotaRepository.findById(cita.getMascota().getId()).orElse(null);
+        Veterinario veterinario = veterinarioRepository.findById(cita.getVeterinario().getId()).orElse(null);
+        ServicioVeterinaria servicio = servicioVeterinariaRepository.findById(cita.getServicioVeterinaria().getId()).orElse(null);
+
+        // Asignar los objetos encontrados a la cita
+        cita.setMascota(mascota);
+        cita.setVeterinario(veterinario);
+        cita.setServicioVeterinaria(servicio);
+
+        // Guardar la cita
+        Cita citaGuardada = iCitaService.save(cita);
+        return ResponseEntity.status(HttpStatus.CREATED).body(citaGuardada);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear cita");
+    }
+}
+
     
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody Cita cita, BindingResult result, @PathVariable Long id) {
