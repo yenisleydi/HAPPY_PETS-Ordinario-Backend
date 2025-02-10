@@ -1,6 +1,7 @@
 package com.example.HAPPY_PETS_Ordinario_Backend.controller;
 
 import com.example.HAPPY_PETS_Ordinario_Backend.model.Cita;
+import com.example.HAPPY_PETS_Ordinario_Backend.model.EstadoRequest;
 import com.example.HAPPY_PETS_Ordinario_Backend.model.Mascota;
 import com.example.HAPPY_PETS_Ordinario_Backend.model.ServicioVeterinaria;
 import com.example.HAPPY_PETS_Ordinario_Backend.model.Veterinario;
@@ -8,6 +9,8 @@ import com.example.HAPPY_PETS_Ordinario_Backend.repository.MascotaRepository;
 import com.example.HAPPY_PETS_Ordinario_Backend.repository.ServicioVeterinariaRepository;
 import com.example.HAPPY_PETS_Ordinario_Backend.repository.VeterinarioRepository;
 import com.example.HAPPY_PETS_Ordinario_Backend.service.ICitaService;
+
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -70,8 +73,22 @@ public ResponseEntity<?> create(@Valid @RequestBody Cita cita, BindingResult res
     }
 }
 
+@PutMapping("/{id}")
+public ResponseEntity<Cita> actualizarEstado(@PathVariable Long id, @RequestBody EstadoRequest estadoRequest) {
+    Optional<Cita> citaActualizadaOptional = iCitaService.updateEstado(id, estadoRequest.getEstado());
+
+    // Si la cita fue encontrada y actualizada
+    if (citaActualizadaOptional.isPresent()) {
+        return ResponseEntity.ok(citaActualizadaOptional.get()); // Devuelve la cita actualizada
+    } else {
+        return ResponseEntity.notFound().build(); // Si no se encuentra la cita, devuelve 404
+    }
+}
+
+
+
     
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/update")
     public ResponseEntity<?> update(@Valid @RequestBody Cita cita, BindingResult result, @PathVariable Long id) {
         if (result.hasErrors()) {
             return validation(result);
@@ -99,4 +116,6 @@ public ResponseEntity<?> create(@Valid @RequestBody Cita cita, BindingResult res
         });
         return ResponseEntity.badRequest().body(errors);
     }
+
+    
 }

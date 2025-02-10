@@ -11,4 +11,5 @@ public interface ICitaService {
     Cita save (Cita cita);
     Optional<Cita> update (Cita cita, Long id);
     void remove(Long id);
+    Optional<Cita> updateEstado(Long id, String estado);
 }

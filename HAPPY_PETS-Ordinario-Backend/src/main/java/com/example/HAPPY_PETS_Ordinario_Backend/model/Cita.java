@@ -26,6 +26,10 @@ public class Cita {
 
 
     @ManyToOne
+    @JoinColumn(name = "id_duenio", referencedColumnName = "id_duenio")
+    private Duenio duenio;
+    
+    @ManyToOne
     @JoinColumn(name = "id_mascota", referencedColumnName = "id_mascota")
     private Mascota mascota;
 
